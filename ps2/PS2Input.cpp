@@ -9,6 +9,10 @@
 #include "hw.h"
 #include "common.h"
 
+#include <libds3ps2.h>
+#include <libds4ps2.h>
+#include <string.h>
+
 
 ////////////////////////////////////////////////////////////////
 // Gameboy buttons
@@ -29,6 +33,8 @@
 ////////////////////////////////////////////////////////////////
 unsigned long dwKeyPad1;
 unsigned long dwKeyPad2;
+struct SS_GAMEPAD ds3Input;
+struct ds4_input ds4Input;
 
 // Buttons config with default buttons
 ButtonsConfig g_BntCnf = {
@@ -204,6 +210,9 @@ int PS2_InitializePad(int port, int slot)
 ////////////////////////////////////////////////////////////////
 int PS2_SetupPad()
 {
+   ds3ps2_init();
+   ds4ps2_init();
+    
    padInit(0);
 
    // hard way to get psxpad working !
@@ -240,6 +249,55 @@ int PS2_SetupPad()
    WaitForNextVRstart(1);
 
    return 0;
+}
+
+void read_dualshock()
+{
+    memset(&ds3Input, 0x0, sizeof(struct SS_GAMEPAD));
+    ds3ps2_get_input((u8 *)&ds3Input);
+    
+    memset(&ds4Input, 0x0, sizeof(struct ds4_input));
+    ds4ps2_get_input((u8 *)&ds4Input);
+}
+
+
+void update_dualshock()
+{
+    read_dualshock();
+ 
+    if ( ds3Input.buttons.left  )  dwKeyPad1 |= INPUT_LEFT;
+    if ( ds3Input.buttons.right )  dwKeyPad1 |= INPUT_RIGHT;
+    if ( ds3Input.buttons.up    )  dwKeyPad1 |= INPUT_UP;
+    if ( ds3Input.buttons.down  )  dwKeyPad1 |= INPUT_DOWN;
+    
+    if ( ds3Input.buttons.circle   )  dwKeyPad1 |= INPUT_B1;
+    if ( ds3Input.buttons.cross    )  dwKeyPad1 |= INPUT_B2;
+    if ( ds3Input.buttons.triangle )  dwKeyPad1 |= INPUT_RUN;
+    if ( ds3Input.buttons.square   )  dwKeyPad1 |= INPUT_SELECT;
+    
+    switch (ds4Input.dpad) {
+    case 0:
+        dwKeyPad1 |= INPUT_UP; break;
+    case 1:
+        dwKeyPad1 |= (INPUT_RIGHT | INPUT_UP); break;
+    case 2:
+        dwKeyPad1 |= INPUT_RIGHT; break;
+    case 3:
+        dwKeyPad1 |= (INPUT_RIGHT | INPUT_DOWN); break;
+    case 4:
+        dwKeyPad1 |= INPUT_DOWN; break;
+    case 5:
+        dwKeyPad1 |= (INPUT_LEFT | INPUT_DOWN); break;
+    case 6:
+        dwKeyPad1 |= INPUT_LEFT; break;
+    case 7:
+        dwKeyPad1 |= (INPUT_LEFT | INPUT_UP); break;
+    }
+
+    if ( ds4Input.circle   )  dwKeyPad1 |= INPUT_B1;
+    if ( ds4Input.cross    )  dwKeyPad1 |= INPUT_B2;
+    if ( ds4Input.triangle )  dwKeyPad1 |= INPUT_RUN;
+    if ( ds4Input.square   )  dwKeyPad1 |= INPUT_SELECT;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -382,6 +440,8 @@ void PS2_UpdateInput()
             dwKeyPad2 |= INPUT_DOWN;
 		}
 	}
+    
+    update_dualshock();
 
 	// Start button
    if ( pad1_data & g_BntCnf.browser_start ) {
@@ -398,6 +458,25 @@ void PS2_UpdateInput()
       // filter method change
       MenuIngame();
    }
+    if (ds3Input.buttons.start) {
+        while ( true ) {
+            read_dualshock();
+            if ( !(ds3Input.buttons.cross) && !(ds3Input.buttons.start) )
+                break; // break when those 2 buttons are released
+        }
+        // filter method change
+        MenuIngame();
+    }
+    
+    if (ds4Input.options) {
+        while ( true ) {
+            read_dualshock();
+            if ( !(ds4Input.cross) && !(ds4Input.options) )
+                break; // break when those 2 buttons are released
+        }
+        // filter method change
+        MenuIngame();
+    }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -408,7 +487,140 @@ int PS2_UpdateInputMenu()
    static int padcountdown = 0;
    static int pad_held_down = 0;
    int ret1, lpad1_data = 0;
-
+   
+    read_dualshock();
+   
+    if ( ds3Input.buttons.cross ) {
+        while ( true ) {
+            read_dualshock();
+             if ( !(ds3Input.buttons.cross) ) break;
+        }
+        return PAD_CROSS;
+    }
+    
+    if ( ds3Input.buttons.square ) {
+        while ( true ) {
+            read_dualshock();
+             if ( !(ds3Input.buttons.square) ) break;
+        }
+        return PAD_SQUARE;
+    }
+    
+    if ( ds3Input.buttons.triangle ) {
+        while ( true ) {
+            read_dualshock();
+             if ( !(ds3Input.buttons.triangle) ) break;
+        }
+        return PAD_TRIANGLE;
+    }
+    if ( ds3Input.buttons.circle ) {
+        while ( true ) {
+            read_dualshock();
+             if ( !(ds3Input.buttons.circle) ) break;
+        }
+        return PAD_CIRCLE;
+    }
+    
+    if ( ds3Input.buttons.up ) {
+        while ( true ) {
+            read_dualshock();
+             if ( !(ds3Input.buttons.up) ) break;
+        }
+        return PAD_UP;
+    }
+    
+    if ( ds3Input.buttons.down ) {
+        while ( true ) {
+            read_dualshock();
+             if ( !(ds3Input.buttons.down) ) break;
+        }
+        return PAD_DOWN;
+    }
+    
+    if ( ds3Input.buttons.right ) {
+        while ( true ) {
+            read_dualshock();
+             if ( !(ds3Input.buttons.right) ) break;
+        }
+        return PAD_RIGHT;
+    }
+    
+    if ( ds3Input.buttons.left ) {
+        while ( true ) {
+            read_dualshock();
+             if ( !(ds3Input.buttons.left) ) break;
+        }
+        return PAD_LEFT;
+    }
+    
+    
+    //DS4
+    
+    
+     if ( ds4Input.cross ) {
+        while ( true ) {
+            read_dualshock();
+             if ( !(ds4Input.cross) ) break;
+        }
+        return PAD_CROSS;
+    }
+    
+    if ( ds4Input.square ) {
+        while ( true ) {
+            read_dualshock();
+             if ( !(ds4Input.square) ) break;
+        }
+        return PAD_SQUARE;
+    }
+    
+    if ( ds4Input.triangle ) {
+        while ( true ) {
+            read_dualshock();
+             if ( !(ds4Input.triangle) ) break;
+        }
+        return PAD_TRIANGLE;
+    }
+    if ( ds4Input.circle ) {
+        while ( true ) {
+            read_dualshock();
+             if ( !(ds4Input.circle) ) break;
+        }
+        return PAD_CIRCLE;
+    }
+    
+    //THIS IS DIRTY!!!!!
+    /*if ( ds4Input.dpad == 0 ) {
+        while ( true ) {
+            read_dualshock();
+             if ( !(ds4Input.dpad == 0) ) break;
+        }
+        return PAD_UP;
+    }*/
+    
+    if ( ds4Input.dpad == 4 ) {
+        while ( true ) {
+            read_dualshock();
+             if ( !(ds4Input.dpad == 4) ) break;
+        }
+        return PAD_DOWN;
+    }
+    
+    if ( ds4Input.dpad == 2 ) {
+        while ( true ) {
+            read_dualshock();
+             if ( !(ds4Input.dpad == 2) ) break;
+        }
+        return PAD_RIGHT;
+    }
+    
+    if ( ds4Input.dpad == 6 ) {
+        while ( true ) {
+            read_dualshock();
+             if ( !(ds4Input.dpad == 6) ) break;
+        }
+        return PAD_LEFT;
+    }
+   
    ret1 = padGetState(0, 0);
    while ( (ret1 != PAD_STATE_STABLE) && (ret1 != PAD_STATE_FINDCTP1) ) {
       if ( ret1 == PAD_STATE_DISCONN ) {

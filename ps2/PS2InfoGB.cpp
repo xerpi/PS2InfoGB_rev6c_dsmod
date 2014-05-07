@@ -5,7 +5,7 @@
  *  But I still retain the copyright, so no one else can limit this release.
  */
 
-#define APP_NAME  "PS2 InfoGB 0.5k"
+#define APP_NAME  "PS2 InfoGB 0.6c DS3/DS4"
 
 // PS2 SDK headers
 #include <tamtypes.h>

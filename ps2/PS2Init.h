@@ -19,6 +19,13 @@ extern int size_usbhdfsd_irx;
 extern void *audsrv_irx;
 extern int size_audsrv_irx;
 
+extern void *ds3ps2_irx;
+extern int size_ds3ps2_irx;
+
+extern void *ds4ps2_irx;
+extern int size_ds4ps2_irx;
+
+
 //////////////////////////////////
 // Globals declaration
 //////////////////////////////////

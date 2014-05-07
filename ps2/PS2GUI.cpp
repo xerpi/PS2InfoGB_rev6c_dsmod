@@ -152,14 +152,17 @@ void DisplayIntroBox(const char *StrMsg)
 
       textCpixel(0, 320, 190, GS_SET_RGBA(255, 255,255, 255), 0, 0, 4, " 7not6");
 
-		UpdateDrawing();
+      UpdateDrawing();
 
       if ( padGetState(0, 0) == PAD_STATE_STABLE ) {
          padRead(0, 0, &lpad1);
          lpad1_data = 0xffff ^ lpad1.btns;
       }
 
-      if ( lpad1_data & PAD_START ) {
+      read_dualshock();
+      update_dualshock();
+
+      if ( (lpad1_data & PAD_START) || ds3Input.buttons.start || ds4Input.options) {
          break;
       }
    }

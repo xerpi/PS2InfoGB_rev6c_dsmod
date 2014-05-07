@@ -1,6 +1,6 @@
 # Programs
-EE_PACKER = ps2-packer-lite
-EE_BIN2S  = bin2s
+EE_PACKER = ps2-packer
+EE_BIN2S  = $(PS2SDK)/bin/bin2s
 EE_STRIP  = ee-strip
 
 # Set dir(s)
@@ -20,13 +20,17 @@ EE_CXXFLAGS += -s
 EE_CFLAGS 	= $(EE_CXXFLAGS)
 
 # standard libs
-EE_LIBS += -lgcc -lstdc++ -lmc -lpad -lfileXio -lpatches
+EE_LIBS += -lds4ps2 -lds3ps2 -lgcc -lstdc++ -lmc -lpad -lfileXio -lpatches
 
 # additional libs
 EE_LIBS += -lcdvdfs -lunzlib -lz -lcdvd -laudsrv
 
 # IRX modules - modules have to be in IRX_DIR
 EE_IRX = cdvd.irx usbd.irx usbhdfsd.irx audsrv.irx fakehost.irx
+
+#Dualshock{3,4} by xerpi
+EE_IRX += ds4ps2.irx ds3ps2.irx 
+
 EE_IRX_OBJ = $(EE_IRX:.irx=.o)
 
 # Objects
@@ -55,6 +59,10 @@ clean:
 pack:
 	$(EE_PACKER) $(EE_BIN) $(EE_BIN:.elf=-packed.elf)
 
+
+copy: $(EE_BIN)
+	cp $(EE_BIN) /media/$(USER)/41D1-9CF2
+	sync
 
 include $(PS2SDK)/samples/Makefile.pref
 include $(PS2SDK)/samples/Makefile.eeglobal

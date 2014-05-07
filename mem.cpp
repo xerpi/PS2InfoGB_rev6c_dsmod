@@ -30,7 +30,7 @@
 #include "vram.h"
 #include "sound.h"
 
-#include "RTC.H"
+#include "RTC.h"
 
 unsigned char *gameboy_memory[16];	/* 0-F */
 unsigned char *video_ram    = (unsigned char *)NULL;	/* Mapped to 8 & 9 */

@@ -81,6 +81,17 @@ void PS2_LoadModules(void)
 	if (ret < 0) {
       printf("Failed to load module: audsrv.irx\n");
 	}
+    
+    SifExecModuleBuffer(&ds3ps2_irx, size_ds3ps2_irx, 0, NULL, &ret);
+    if (ret < 0) {
+        printf("Failed to load module: ds3ps2.irx\n");
+    }
+
+    SifExecModuleBuffer(&ds4ps2_irx, size_ds4ps2_irx, 0, NULL, &ret);
+    if (ret < 0) {
+        printf("Failed to load module: ds4ps2.irx\n");
+    }
+
 }
 
 ////////////////////////////////////////////////////////////////
